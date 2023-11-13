@@ -1,3 +1,3 @@
 # ProAgent
 
-Paper is relased [here](ProAgent/paper/paper.pdf)! Code is comming soon！
+Paper is released in `ProAgent/paper/paper.pdf`! Code is comming soon！
