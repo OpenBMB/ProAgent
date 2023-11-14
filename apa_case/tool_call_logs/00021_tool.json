@@ -1,0 +1,14 @@
+{
+  "thought": "",
+  "plan": [],
+  "criticism": "",
+  "tool_name": "ask_user_help",
+  "tool_input": {
+    "problems": "The output data of action_0 does not contain a 'name' key, which is used in mainWorkflow. Could you please provide the correct key?"
+  },
+  "tool_output_status": "ToolCallSuccess",
+  "tool_output": {
+    "result": "",
+    "status": "ToolCallSuccess"
+  }
+}

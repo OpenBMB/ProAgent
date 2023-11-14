@@ -1,0 +1,42 @@
+[{
+  "_id": {
+    "$oid": "652e3516d033b7ea1c941324"
+  },
+  "name": "Zhang San",
+  "grade": 90
+},
+{
+  "_id": {
+    "$oid": "652e3584d033b7ea1c94132a"
+  },
+  "name": "Li Si",
+  "grade": 95
+},
+{
+  "_id": {
+    "$oid": "652e3593d033b7ea1c94132b"
+  },
+  "name": "Li Hua",
+  "grade": 59
+},
+{
+  "_id": {
+    "$oid": "652e35a0d033b7ea1c94132c"
+  },
+  "name": "Zhao Qiang",
+  "grade": 100
+},
+{
+  "_id": {
+    "$oid": "652e35b2d033b7ea1c94132d"
+  },
+  "name": "Liu Liu",
+  "grade": 85
+},
+{
+  "_id": {
+    "$oid": "652e35d0d033b7ea1c94132e"
+  },
+  "name": "Ju Qian",
+  "grade": 36
+}]

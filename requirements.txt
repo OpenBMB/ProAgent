@@ -1,0 +1,6 @@
+hydra-core
+colorama
+func_timeout
+tqdm
+termcolor
+openai

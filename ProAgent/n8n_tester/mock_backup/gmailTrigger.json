@@ -1,0 +1,38 @@
+{
+    "default": {
+        "default": [
+            {
+                "id": "18ac5d489adbb451",
+                "threadId": "18ac5d489adbb451",
+                "snippet": "Hi xagent! You recently requested to resend the verification email, here I am! To continue setting up your workspace, please verify your email by clicking the link below: Verify my email Blue skies, Your",
+                "payload": {
+                    "mimeType": "multipart/alternative"
+                },
+                "sizeEstimate": 10427,
+                "historyId": "223226",
+                "internalDate": "1695537202000",
+                "labels": [
+                    {
+                        "id": "INBOX",
+                        "name": "INBOX"
+                    },
+                    {
+                        "id": "IMPORTANT",
+                        "name": "IMPORTANT"
+                    },
+                    {
+                        "id": "CATEGORY_UPDATES",
+                        "name": "CATEGORY_UPDATES"
+                    },
+                    {
+                        "id": "UNREAD",
+                        "name": "UNREAD"
+                    }
+                ],
+                "From": "n8n.io <hello@info.n8n.io>",
+                "Subject": "Verify your n8n account email",
+                "To": "yourxagent@gmail.com"
+            }
+        ]
+    }
+}

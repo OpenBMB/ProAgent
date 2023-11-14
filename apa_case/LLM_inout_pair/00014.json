@@ -1,0 +1,501 @@
+{
+  "input": {
+    "base_kwargs": {
+      "model": "gpt-4-32k",
+      "temperature": 0.5,
+      "request_timeout": 30,
+      "max_tokens": 4096,
+      "frequency_penalty": 0,
+      "presence_penalty": 0,
+      "messages": [
+        {
+          "role": "system",
+          "content": "You are ProAgent, a RPA(Robotic Process Automation) agent, you can write and test a RPA-Python-Code to connect different APPs together to reach a specific user query.\n\nRPA-Python-Code:\n1. Each actions and triggers of APPs are defined as Action/Trigger-Functions, once you provide the specific_params for a function, then we will implement and test it **with some features that can influence outside-world and is transparent to you**.\n2. A RPA process is implemented as a workflow-function. the mainWorkflow function is activated when the trigger's conditions are reached.\n3. You can implement multiple workflow-function as sub-workflows to be called recursively, but there can be only one mainWorkflow.\n4. We will automatically test the workflows and actions with the Pinned-Data afer you change the specific_params.\n\nAction/Trigger-Function: All the functions have the same following parameters:\n1.integration_name: where this function is from. A integration represent a list of actions and triggers from a APP.\n2.resource_name: This is the second category of a integration.\n3.operation_name: This is the third category of a integration. (integration->resouce->operation)\n4.specific_params: This is a json field, you will only see how to given this field after the above fields are selected.\n5.TODOS: List[str]: What will you do with this function, this field will change with time.\n6.comments: This will be shown to users, you need to explain why you define and use this function.\n\nWorkflow-Function:\n1. Workflow-Function connect different Action-Functions together, you will handle the data format change, etc.\n2. You must always have a mainWorkflow, whose inputs are a Trigger-function's output. If you define multiple triggers, The mainWorkflow will be activated when one of the trigger are activated, you must handle data type changes.\n3. You can define multiple subworkflow-function, Which whose inputs are provided by other workflows, You need to handle data-formats.\n\nTesting-When-Implementing: We will **automatically** test all your actions, triggers and workflows with the pinned input data **at each time** once you change it.\n1. Example input: We will provide you the example input for similar actions in history after you define and implement the function.\n2. new provided input: You can also add new input data in the available input data.\n3. You can pin some of the available data, and we will automatically test your functions based on your choice them.\n4. We will always pin the first run-time input data from now RPA-Python-Code(If had).\n5.Some test may influence outside world like create a repository, so your workflow must handle different situations.\n\nData-Format: We ensure all the input/output data in transparent action functions have the format of List of Json: [{...}], length > 0\n1.All items in the list have the same json schema. The transparent will be activated for each item in the input-data. For example, A slack-send-message function will send 3 functions when the input has 3 items.\n2.All the json item must have a \"json\" field, in which are some custom fields.\n3.Some functions' json items have a additional \"binary\" field, which contains raw data of images, csv, etc.\n4.In most cases, the input/output data schema can only be seen at runtimes, so you need to do more test and refine.\n\nJava-Script-Expression:\n1.You can use java-script expression in the specific_params to access the input data directly. Use it by a string startswith \"=\", and provide expression inside a \"{{...}}\" block. \n2. Use \"{{$json[\"xxx\"]}}\" to obtain the \"json\" field in each item of the input data.\n3. You can use expression in \"string\" , \"number\", \"boolean\" and \"json\" type, such as:\nstring: \"=Hello {{$json[\"name\"]}}, you are {{$json[\"age\"]}} years old\nboolean: \"={{$json[\"age\"] > 20}}\"\nnumber: \"={{$json[\"year\"] + 10.5}}\"\njson: \"={ \"new_age\":{{$json[\"year\"] + 5}} }\"\n\nFor example, in slack-send-message. The input looks like:\n[\n {\n    \"json\": {\n        \"name\": \"Alice\",\n        \"age\": 15,\n    }\n },\n {\n    \"json\": {\n        \"name\": \"Jack\",\n        \"age\": 20,\n    }\n }\n]\nWhen you set the field \"message text\" as \"=Hello {{$json[\"name\"]}}, you are {{$json[\"age\"]}} years old.\", then the message will be send as:\n[\n    \"Hello Alice, you are 15 years old.\",\n    \"Hello Jack, you are 20 years old.\",\n]\n\nBased on the above information, the full RPA-Python-Code looks like the following:\n```\nfrom transparent_server import transparent_action, tranparent_trigger\n\n# Specific_params: After you give function_define, we will provide json schemas of specific_params here.\n# Avaliable_datas: All the avaliable Datas: data_1, data_2...\n# Pinned_data_ID: All the input data you pinned and there execution result\n# ID=1, output: xxx\n# ID=3, output: xxx\n# Runtime_input_data: The runtime input of this function(first time)\n# Runtime_output_data: The corresponding output\ndef action_1(input_data: [{...}]):\n    # comments: some comments to users. Always give/change this when defining and implmenting\n    # TODOS:\n    # 1. I will provide the information in runtime\n    # 2. I will test the node\n    # 3. ...Always give/change this when defining and implmenting\n    specific_params = {\n        \"key_1\": value_1,\n        \"key_2\": [\n            {\n                \"subkey_2\": value_2,\n            }\n        ],\n        \"key_3\": {\n            \"subkey_3\": value_3,\n        },\n        # You will implement this after function-define\n    }\n    function = transparent_action(integration=xxx, resource=yyy, operation=zzz)\n    output_data = function.run(input_data=input_data, params=params)\n    return output_data\n\ndef action_2(input_data: [{...}]): ...\ndef action_3(input_data: [{...}]): ...\ndef action_4(input_data: [{...}]): ...\n\n# Specific_params: After you give function_define, we will provide json schemas of specific_params here.\n# Trigger function has no input, and have the same output_format. So We will provide You the exmaple_output once you changed the code here.\ndef trigger_1(): \n    # comments: some comments to users. Always give/change this when defining and implmenting\n    # TODOS:\n    # 1. I will provide the information in runtime\n    # 2. I will test the node\n    # 3. ...Always give/change this when defining and implmenting\n    specific_params = {\n        \"key_1\": value_1,\n        \"key_2\": [\n            {\n                \"subkey_2\": value_2,\n            }\n        ],\n        \"key_3\": {\n            \"subkey_3\": value_3,\n        },\n        # You will implement this after function-define\n    }\n    function = transparent_trigger(integration=xxx, resource=yyy, operation=zzz)\n    output_data = function.run(input_data=input_data, params=params)\n    return output_data\n\ndef trigger_2(input_data: [{...}]): ...\ndef trigger_3(input_data: [{...}]): ...\n\n# subworkflow inputs the same json-schema, can be called by another workflow.\ndef subworkflow_1(father_workflow_input: [{...}]): ...\ndef subworkflow_2(father_workflow_input: [{...}]): ...\n\n# If you defined the trigger node, we will show you the mocked trigger input here.\n# If you have implemented the workflow, we will automatically run the workflow for all the mock trigger-input and tells you the result.\ndef mainWorkflow(trigger_input: [{...}]): \n    # comments: some comments to users. Always give/change this when defining and implmenting\n    # TODOS:\n    # 1. I will provide the information in runtime\n    # 2. I will test the node\n    # 3. ...Always give/change this when defining and implmenting\n\n    # some complex logics here\n    output_data = trigger_input\n    \n    return output_data\n```\n"
+        },
+        {
+          "role": "system",
+          "content": "You will define and implement functions progressively for many steps. At each step, you can do one of the following actions:\n1. functions_define: Define a list of functions(Action and Trigger). You must provide the (integration,resource,operation) field, which cannot be changed latter.\n2. function_implement: After function define, we will provide you the specific_param schema of the target function. You can provide(or override) the specific_param by this function. We will show your available test_data after you implement functions.\n3. workflow_implement: You can directly re-write a implement of the target-workflow.\n4. add_test_data: Beside the provided hostory data, you can also add your custom test data for a function.\n5. task_submit: After you think you have finished the task, call this function to exit.\n\nRemember:\n1.Always provide thought, plans and criticisim before giving an action.\n2.Always provide/change TODOs and comments for all the functions when you implement them, This helps you to further refine and debug latter.\n3.We will test functions automatically, you only need to change the pinned data.\n\n"
+        },
+        {
+          "role": "system",
+          "content": "The user query:\n\n- 1. 所有的thought、comments都要用中文，让我看明白。\n\n- 2.1 Google Sheet的documentId(url)为：https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\n\n- 2.2 Google sheetName(url)为https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\n3.1 使用 ai node1 判断是否存在业务流，你可以使用aiCompletion node（注意调整 Prompt!)，如果 ai 的回答中包含 'to B'，则业务流类型是to B，如果包含 'to C'，则业务流类型是to C。\n4.1 Slack Channel 选择 #general.\n\n- 4.2 邮件内容使用 ai node2 生成。\n\n\nYou have access to use the following actions and triggers:\n\n1.integration=gmail: Consume the Gmail API\n  1.1: action(resource=message, operation=send)\n2.integration=googleSheets: Read, update and write data to Google Sheets\n  2.1: action(resource=sheet, operation=read): Read all rows in a sheet\n3.integration=manualTrigger: Runs the flow on clicking a button in n8n\n  3.1: trigger(resource=default, operation=default)\n4.integration=mongoDb: Find, insert and update documents in MongoDB\n  4.1: action(resource=default, operation=find): Find documents\n5.integration=n8nTrainingCustomerDatastore: Dummy node used for n8n training\n  5.1: action(resource=default, operation=getOnePerson)\n  5.2: action(resource=default, operation=getAllPeople)\n6.integration=n8nTrainingCustomerMessenger: Dummy node used for n8n training\n  6.1: action(resource=default, operation=default)\n7.integration=slack: Consume Slack API\n  7.1: action(resource=message, operation=post)\n8.integration=aiCompletion: Use GPT from openAi to complete language tasks.\n  8.1: action(resource=default, operation=default)\n"
+        },
+        {
+          "role": "assistant",
+          "function_call": {
+            "name": "function_rewrite_params",
+            "arguments": "{\n  \"function_name\": \"action_2\",\n  \"params\": \"{\\\"sendTo\\\": \\\"\\\", \\\"subject\\\": \\\"\\\", \\\"emailType\\\": \\\"text\\\", \\\"message\\\": \\\"\\\"}\",\n  \"comments\": \"向Gmail发送邮件，由于没有给出具体的收件人、主题和消息内容，我们暂时先不设置这些参数。\",\n  \"TODO\": [\"测试此功能\"],\n  \"thought\": \"由于Gmail的参数较多，我们需要仔细阅读参数描述，以确保正确设置。\",\n  \"plan\": [\"实现使用AI生成邮件内容的action。\"],\n  \"criticism\": \"当前计划看起来可行，没有明显的问题。\"\n}"
+          },
+          "content": ""
+        },
+        {
+          "role": "function",
+          "name": "function_rewrite_params",
+          "content": "{\"error\": \"input parameter is null, \\\"sendTo\\\" for action_2. You should put something in it.\", \"result\": \"Nothing happened.\", \"status\": \"RequiredParamUnprovided\"}"
+        },
+        {
+          "role": "assistant",
+          "function_call": {
+            "name": "workflow_implment",
+            "arguments": "{\n  \"workflow_name\": \"mainWorkflow\",\n  \"code\": \"def mainWorkflow(trigger_input: [{...}]):\\n  \\\"\\\"\\\"\\n  comments: 当用户手动触发时，从Google Sheets中读取业务流数据，计算业务流的利润，并判断业务流的类型，给业务经理发送盈利或亏损信息。\\n  TODOs: \\n    - 测试此工作流程\\n  \\\"\\\"\\\"\\n  # 从Google Sheets中读取业务流数据\\n  business_flow_data = action_0(trigger_input)\\n  # 计算业务流的利润\\n  for data in business_flow_data:\\n    data['json']['profit'] = data['json']['sales'] - data['json']['cost']\\n  # 判断业务流的类型，并给业务经理发送盈利或亏损信息\\n  for data in business_flow_data:\\n    if data['json']['type'] == 'to B':\\n      # 如果业务流类型为to B，向Slack的#general频道发送消息\\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\\n      action_1([message])\\n    elif data['json']['type'] == 'to C':\\n      # 如果业务流类型为to C，向该业务流经理发送一则提醒邮件\\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\\n      email_content = action_3([message])\\n      email = {'json': {'sendTo': data['json']['manager'], 'subject': '业务流利润提醒', 'message': email_content[0]['json']['choices'][0]['text']}}\\n      action_2([email])\\n  return business_flow_data\",\n  \"thought\": \"由于Gmail和AI的params没有给出具体的参数，我们需要先实现主工作流程，然后根据主工作流程的需要来设置Gmail和AI的params。\",\n  \"plan\": [\"实现Gmail和AI的params\", \"测试主工作流程\"],\n  \"criticism\": \"目前的计划看起来可行，没有明显的问题。\"\n}"
+          },
+          "content": ""
+        },
+        {
+          "role": "function",
+          "name": "workflow_implment",
+          "content": "{\"result\": \"mainWorkflow has been re-implemented\", \"status\": \"ToolCallSuccess\"}"
+        },
+        {
+          "role": "assistant",
+          "function_call": {
+            "name": "function_rewrite_params",
+            "arguments": "{\n  \"function_name\": \"action_3\",\n  \"params\": \"{\\\"messages\\\": \\\"=Hello, business manager, your business line \\\"+{{$json['Business Line']}}+\\\" has a profit of \\\"+({{$json['Sales']}}-{{$json['Cost']}})+\\\".\\\"}\",\n  \"comments\": \"使用AI生成邮件内容，内容为：Hello, business manager, your business line X has a profit of Y. 其中X是业务线的编号，Y是利润。\",\n  \"TODO\": [\"测试此功能\"],\n  \"thought\": \"根据AI的参数描述，我们需要设置'messages'参数，以生成邮件的内容。我使用了表达式来根据输入的数据生成消息。\",\n  \"plan\": [\"实现发送Gmail邮件的action。\"],\n  \"criticism\": \"当前计划看起来可行，没有明显的问题。\"\n}"
+          },
+          "content": ""
+        },
+        {
+          "role": "function",
+          "name": "function_rewrite_params",
+          "content": "{\"ERROR\": \"\\\"params\\\" field can't be parsed to json.\", \"result\": \"Nothing Happened\", \"status\": \"InputCannotParsed\"}"
+        },
+        {
+          "role": "user",
+          "content": "Now the codes looks like this:\n```\n\"\"\"Function param descriptions: \nThis function doesn't need params\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef trigger_0():\n  \"\"\"\n  comments: 当用户手动触发时，启动工作流程\n  TODOs: \n    - 实现触发器的参数设置\n  \"\"\"\n  params = {}\n  function = transparent_trigger(integration=\"manualTrigger\", resource=\"default\", operation=\"default\")\n  output_data = function.run(input_data=None, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"documentId\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}, Required: Document . \"mode\" should be one of ['url', 'id']: \n  0.0 params[\"documentId\"][\"value\"](when \"mode\"=\"url\"): string: By URL\n  0.1 params[\"documentId\"][\"value\"](when \"mode\"=\"id\"): string: By ID\n1 params[\"sheetName\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}, Required: Sheet . \"mode\" should be one of ['url', 'id']: \n  1.0 params[\"sheetName\"][\"value\"](when \"mode\"=\"url\"): string: By URL\n  1.1 params[\"sheetName\"][\"value\"](when \"mode\"=\"id\"): string: By ID\n2 params[\"filtersUI\"]: dict[str,list[dict[str,any]]] = {}: Filters(Add Filter) . properties description:\n  ...hidden...\n3 params[\"options\"]: dict = {}: Options(Add Option) . properties description:\n  ...hidden...\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_0(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 从Google Sheets中读取业务流数据，其中documentId和sheetName都是通过URL给出的。\n  TODOs: \n    - 测试此功能\n  \"\"\"\n  params = {\n             \"documentId\": {\n               \"mode\": \"url\",\n               \"value\": \"https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\"\n             },\n             \"sheetName\": {\n               \"mode\": \"url\",\n               \"value\": \"https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\"\n             }\n           }\n  function = transparent_action(integration=\"googleSheets\", resource=\"sheet\", operation=\"read\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"select\"]: enum[string] = \"\", Required: Send Message To(Select...) . Available values:\n  0.0 value==\"channel\": Channel\n  0.1 value==\"user\": User\n1 params[\"channelId\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}, Required: Channel. The Slack channel to send to(Select a channel...) . \"mode\" should be one of ['id', 'name', 'url']: \n  1.0 params[\"channelId\"][\"value\"](when \"mode\"=\"id\"): string: By ID(C0122KQ70S7E)\n  1.1 params[\"channelId\"][\"value\"](when \"mode\"=\"name\"): string: By Name(#general)\n  1.2 params[\"channelId\"][\"value\"](when \"mode\"=\"url\"): string: By URL(https://app.slack.com/client/TS9594PZK/B0556F47Z3A)\n2 params[\"user\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}: User(Select a user...) . \"mode\" should be one of ['id', 'username']: \n  ...hidden...\n3 params[\"messageType\"]: enum[string] = \"text\": Message Type. Whether to send a simple text message, or use Slack’s Blocks UI builder for more sophisticated messages that include form fields, sections and more . Available values:\n  3.0 value==\"text\": Simple Text Message. Supports basic Markdown\n  3.1 value==\"block\": Blocks. Combine text, buttons, form elements, dividers and more in Slack 's visual builder\n  3.2 value==\"attachment\": Attachments\n4 params[\"text\"]: string = \"\": Notification Text. Fallback text to display in slack notifications. Supports <a href=\"https://api.slack.com/reference/surfaces/formatting\">markdown</a> by default - this can be disabled in \"Options\".\n5 params[\"blocksUi\"]: string = \"\", Required: Blocks. Enter the JSON output from Slack's visual Block Kit Builder here. You can then use expressions to add variable content to your blocks. To create blocks, use <a target='_blank' href='https://app.slack.com/block-kit-builder'>Slack's Block Kit Builder</a>\n6 params[\"attachments\"]: list[dict] = [{}]: Attachments(Add attachment item) . properties description:\n  ...hidden...\n7 params[\"otherOptions\"]: dict = {}: Options. Other options to set(Add options) . properties description:\n  ...hidden...\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_1(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 向Slack的#general频道发送消息\n  TODOs: \n    - 测试此功能\n  \"\"\"\n  params = {\n             \"select\": \"channel\",\n             \"channelId\": {\n               \"mode\": \"name\",\n               \"value\": \"#general\"\n             }\n           }\n  function = transparent_action(integration=\"slack\", resource=\"message\", operation=\"post\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"sendTo\"]: string = \"\", Required: To. The email addresses of the recipients. Multiple addresses can be separated by a comma. e.g. jay@getsby.com, jon@smith.com.(info@example.com)\n1 params[\"subject\"]: string = \"\", Required: Subject(Hello World!)\n2 params[\"emailType\"]: enum[string] = \"text\", Required: Email Type  You can't use expression.. Available values:\n  2.0 value==\"text\": Text\n  2.1 value==\"html\": HTML\n3 params[\"message\"]: string = \"\", Required: Message\n4 params[\"options\"]: dict = {}: Options(Add Option) . properties description:\n  ...hidden...\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_2(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 向Gmail发送邮件\n  TODOs: \n    - 实现动作的参数设置\n  \"\"\"\n  params = {}  # to be Implemented\n  function = transparent_action(integration=\"gmail\", resource=\"message\", operation=\"send\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"messages\"]: string = \"\", Required: messages. Set system and user prompts here. An Example:{\"messages\": [{\"role\": \"system\",\"content\": \"Please say hello to user.\"}, {\"role\": \"user\",\"content\": \"Hello!\"}]}\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_3(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 使用AI生成邮件内容\n  TODOs: \n    - 实现动作的参数设置\n  \"\"\"\n  params = {}  # to be Implemented\n  function = transparent_action(integration=\"aiCompletion\", resource=\"default\", operation=\"default\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"\n\nThis function has been executed for 1 times. Last execution:\n1.Status: ErrorRaisedHere\n2.Input: \nNone\n\n3.Output:\n[]\n\"\"\"\ndef mainWorkflow(trigger_input: [{...}]):\n  \"\"\"\n  comments: 当用户手动触发时，从Google Sheets中读取业务流数据，计算业务流的利润，并判断业务流的类型，给业务经理发送盈利或亏损信息。\n  TODOs: \n    - 测试此工作流程\n  \"\"\"\n  # 从Google Sheets中读取业务流数据\n  business_flow_data = action_0(trigger_input)\n  # 计算业务流的利润\n  for data in business_flow_data:\n    data['json']['profit'] = data['json']['sales'] - data['json']['cost']\n  # 判断业务流的类型，并给业务经理发送盈利或亏损信息\n  for data in business_flow_data:\n    if data['json']['type'] == 'to B':\n      # 如果业务流类型为to B，向Slack的#general频道发送消息\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\n      action_1([message])\n    elif data['json']['type'] == 'to C':\n      # 如果业务流类型为to C，向该业务流经理发送一则提醒邮件\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\n      email_content = action_3([message])\n      email = {'json': {'sendTo': data['json']['manager'], 'subject': '业务流利润提醒', 'message': email_content[0]['json']['choices'][0]['text']}}\n      action_2([email])\n  return business_flow_data\n\n\n\n\"\"\"\n\nThe directly running result for now codes with print results are as following:\n\n\nNote: if there is 'KeyError' in the error message, it may be due to the wrong usage of output data. The output data info may help you: \n[Output Data Info]\n\n------------------------\nIn Function: mainWorkflow\n      print(\"Please call Workflow-implement first\")\n-->   raise NotImplementedError\n------------------------\nNotImplementedError: \n\nYou can also see the runnning result for all functions in there comments.\n\"\"\"\n```\n\n\n\nGive your next action together with thought, plans and criticisim:\n"
+        }
+      ],
+      "functions": [
+        {
+          "name": "function_define",
+          "description": "define a list of functions, each one must specify the given (integration-resource-action)",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "thought": {
+                "type": "string",
+                "description": "Why you choose this function"
+              },
+              "plan": {
+                "type": "array",
+                "description": "What will you do in the following steps",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "criticism": {
+                "type": "string",
+                "description": "What main weakness does the current plan have"
+              },
+              "functions": {
+                "type": "array",
+                "description": "the newly defined functions.",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "integration_name": {
+                      "type": "string"
+                    },
+                    "resource_name": {
+                      "type": "string"
+                    },
+                    "operation_name": {
+                      "type": "string"
+                    },
+                    "comments": {
+                      "type": "string",
+                      "description": "This will be shown to the user, how will you use this node in the workflow"
+                    },
+                    "TODO": {
+                      "type": "array",
+                      "description": "The function didn't have implemented yet. List what you will do to further implement, test and refine this function",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "required": [
+                    "integration_name",
+                    "resource_name",
+                    "operation_name",
+                    "comments",
+                    "TODO"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "thought",
+              "plan",
+              "criticism",
+              "functions"
+            ]
+          }
+        },
+        {
+          "name": "function_rewrite_params",
+          "description": "Give params of a already defined function with the provided param descriptions, This will overwrite now params",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "thought": {
+                "type": "string",
+                "description": "Why you choose this function"
+              },
+              "plan": {
+                "type": "array",
+                "description": "What will you do in the following steps",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "criticism": {
+                "type": "string",
+                "description": "What main weakness does the current plan have"
+              },
+              "function_name": {
+                "type": "string",
+                "description": "Such as 'Action_x' or 'Trigger_x'. Must be a already defined function."
+              },
+              "params": {
+                "type": "string",
+                "description": "The json object of the input params. The field descriptions should refer to the Function defination in the code"
+              },
+              "comments": {
+                "type": "string",
+                "description": "This will be shown to the user, how will you use this node in the workflow"
+              },
+              "TODO": {
+                "type": "array",
+                "description": "What will you do to further implement, test and refine this function",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": [
+              "thought",
+              "plan",
+              "criticism",
+              "function_name",
+              "params",
+              "comments",
+              "TODO"
+            ]
+          }
+        },
+        {
+          "name": "workflow_implment",
+          "description": "Implement a workflow, directly write the output of the workflow, staring with \"def mainWorkflow...\" or \"def subworkflow_xxx...\"",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "thought": {
+                "type": "string",
+                "description": "Why you choose this function"
+              },
+              "plan": {
+                "type": "array",
+                "description": "What will you do in the following steps",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "criticism": {
+                "type": "string",
+                "description": "What main weakness does the current plan have"
+              },
+              "workflow_name": {
+                "type": "string",
+                "description": "the newly implemented workflow. If this workflow exists, we will overwrite it. All names must be \"mainWorkflow\" or \"subworkflow_x\""
+              },
+              "code": {
+                "type": "string",
+                "description": "Write the python code of the workflow. We will check you have \"comments\" and \"TODOs\". Input of mainWorkflow should always be trigger_input, Input of subworkflows should always be father_workflow_input"
+              }
+            },
+            "required": [
+              "thought",
+              "plan",
+              "criticism",
+              "workflow_name",
+              "code"
+            ]
+          }
+        },
+        {
+          "name": "ask_user_help",
+          "description": "Call this function when you think you can't solve some problems. You can ask user for help.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "problems": {
+                "type": "string",
+                "description": "Tell what problem you are confronted with to user and ask for help."
+              }
+            }
+          }
+        },
+        {
+          "name": "task_submit",
+          "description": "Call this function when you think you have finished the task. User will give you some feedback that can help you make your workflow better.",
+          "parameters": {
+            "type": "object",
+            "properties": {
+              "result": {
+                "type": "string",
+                "description": "Tell what you have done to user. Use Markdown format."
+              }
+            }
+          }
+        }
+      ]
+    },
+    "messages": [
+      {
+        "role": "system",
+        "content": "You are ProAgent, a RPA(Robotic Process Automation) agent, you can write and test a RPA-Python-Code to connect different APPs together to reach a specific user query.\n\nRPA-Python-Code:\n1. Each actions and triggers of APPs are defined as Action/Trigger-Functions, once you provide the specific_params for a function, then we will implement and test it **with some features that can influence outside-world and is transparent to you**.\n2. A RPA process is implemented as a workflow-function. the mainWorkflow function is activated when the trigger's conditions are reached.\n3. You can implement multiple workflow-function as sub-workflows to be called recursively, but there can be only one mainWorkflow.\n4. We will automatically test the workflows and actions with the Pinned-Data afer you change the specific_params.\n\nAction/Trigger-Function: All the functions have the same following parameters:\n1.integration_name: where this function is from. A integration represent a list of actions and triggers from a APP.\n2.resource_name: This is the second category of a integration.\n3.operation_name: This is the third category of a integration. (integration->resouce->operation)\n4.specific_params: This is a json field, you will only see how to given this field after the above fields are selected.\n5.TODOS: List[str]: What will you do with this function, this field will change with time.\n6.comments: This will be shown to users, you need to explain why you define and use this function.\n\nWorkflow-Function:\n1. Workflow-Function connect different Action-Functions together, you will handle the data format change, etc.\n2. You must always have a mainWorkflow, whose inputs are a Trigger-function's output. If you define multiple triggers, The mainWorkflow will be activated when one of the trigger are activated, you must handle data type changes.\n3. You can define multiple subworkflow-function, Which whose inputs are provided by other workflows, You need to handle data-formats.\n\nTesting-When-Implementing: We will **automatically** test all your actions, triggers and workflows with the pinned input data **at each time** once you change it.\n1. Example input: We will provide you the example input for similar actions in history after you define and implement the function.\n2. new provided input: You can also add new input data in the available input data.\n3. You can pin some of the available data, and we will automatically test your functions based on your choice them.\n4. We will always pin the first run-time input data from now RPA-Python-Code(If had).\n5.Some test may influence outside world like create a repository, so your workflow must handle different situations.\n\nData-Format: We ensure all the input/output data in transparent action functions have the format of List of Json: [{...}], length > 0\n1.All items in the list have the same json schema. The transparent will be activated for each item in the input-data. For example, A slack-send-message function will send 3 functions when the input has 3 items.\n2.All the json item must have a \"json\" field, in which are some custom fields.\n3.Some functions' json items have a additional \"binary\" field, which contains raw data of images, csv, etc.\n4.In most cases, the input/output data schema can only be seen at runtimes, so you need to do more test and refine.\n\nJava-Script-Expression:\n1.You can use java-script expression in the specific_params to access the input data directly. Use it by a string startswith \"=\", and provide expression inside a \"{{...}}\" block. \n2. Use \"{{$json[\"xxx\"]}}\" to obtain the \"json\" field in each item of the input data.\n3. You can use expression in \"string\" , \"number\", \"boolean\" and \"json\" type, such as:\nstring: \"=Hello {{$json[\"name\"]}}, you are {{$json[\"age\"]}} years old\nboolean: \"={{$json[\"age\"] > 20}}\"\nnumber: \"={{$json[\"year\"] + 10.5}}\"\njson: \"={ \"new_age\":{{$json[\"year\"] + 5}} }\"\n\nFor example, in slack-send-message. The input looks like:\n[\n {\n    \"json\": {\n        \"name\": \"Alice\",\n        \"age\": 15,\n    }\n },\n {\n    \"json\": {\n        \"name\": \"Jack\",\n        \"age\": 20,\n    }\n }\n]\nWhen you set the field \"message text\" as \"=Hello {{$json[\"name\"]}}, you are {{$json[\"age\"]}} years old.\", then the message will be send as:\n[\n    \"Hello Alice, you are 15 years old.\",\n    \"Hello Jack, you are 20 years old.\",\n]\n\nBased on the above information, the full RPA-Python-Code looks like the following:\n```\nfrom transparent_server import transparent_action, tranparent_trigger\n\n# Specific_params: After you give function_define, we will provide json schemas of specific_params here.\n# Avaliable_datas: All the avaliable Datas: data_1, data_2...\n# Pinned_data_ID: All the input data you pinned and there execution result\n# ID=1, output: xxx\n# ID=3, output: xxx\n# Runtime_input_data: The runtime input of this function(first time)\n# Runtime_output_data: The corresponding output\ndef action_1(input_data: [{...}]):\n    # comments: some comments to users. Always give/change this when defining and implmenting\n    # TODOS:\n    # 1. I will provide the information in runtime\n    # 2. I will test the node\n    # 3. ...Always give/change this when defining and implmenting\n    specific_params = {\n        \"key_1\": value_1,\n        \"key_2\": [\n            {\n                \"subkey_2\": value_2,\n            }\n        ],\n        \"key_3\": {\n            \"subkey_3\": value_3,\n        },\n        # You will implement this after function-define\n    }\n    function = transparent_action(integration=xxx, resource=yyy, operation=zzz)\n    output_data = function.run(input_data=input_data, params=params)\n    return output_data\n\ndef action_2(input_data: [{...}]): ...\ndef action_3(input_data: [{...}]): ...\ndef action_4(input_data: [{...}]): ...\n\n# Specific_params: After you give function_define, we will provide json schemas of specific_params here.\n# Trigger function has no input, and have the same output_format. So We will provide You the exmaple_output once you changed the code here.\ndef trigger_1(): \n    # comments: some comments to users. Always give/change this when defining and implmenting\n    # TODOS:\n    # 1. I will provide the information in runtime\n    # 2. I will test the node\n    # 3. ...Always give/change this when defining and implmenting\n    specific_params = {\n        \"key_1\": value_1,\n        \"key_2\": [\n            {\n                \"subkey_2\": value_2,\n            }\n        ],\n        \"key_3\": {\n            \"subkey_3\": value_3,\n        },\n        # You will implement this after function-define\n    }\n    function = transparent_trigger(integration=xxx, resource=yyy, operation=zzz)\n    output_data = function.run(input_data=input_data, params=params)\n    return output_data\n\ndef trigger_2(input_data: [{...}]): ...\ndef trigger_3(input_data: [{...}]): ...\n\n# subworkflow inputs the same json-schema, can be called by another workflow.\ndef subworkflow_1(father_workflow_input: [{...}]): ...\ndef subworkflow_2(father_workflow_input: [{...}]): ...\n\n# If you defined the trigger node, we will show you the mocked trigger input here.\n# If you have implemented the workflow, we will automatically run the workflow for all the mock trigger-input and tells you the result.\ndef mainWorkflow(trigger_input: [{...}]): \n    # comments: some comments to users. Always give/change this when defining and implmenting\n    # TODOS:\n    # 1. I will provide the information in runtime\n    # 2. I will test the node\n    # 3. ...Always give/change this when defining and implmenting\n\n    # some complex logics here\n    output_data = trigger_input\n    \n    return output_data\n```\n"
+      },
+      {
+        "role": "system",
+        "content": "You will define and implement functions progressively for many steps. At each step, you can do one of the following actions:\n1. functions_define: Define a list of functions(Action and Trigger). You must provide the (integration,resource,operation) field, which cannot be changed latter.\n2. function_implement: After function define, we will provide you the specific_param schema of the target function. You can provide(or override) the specific_param by this function. We will show your available test_data after you implement functions.\n3. workflow_implement: You can directly re-write a implement of the target-workflow.\n4. add_test_data: Beside the provided hostory data, you can also add your custom test data for a function.\n5. task_submit: After you think you have finished the task, call this function to exit.\n\nRemember:\n1.Always provide thought, plans and criticisim before giving an action.\n2.Always provide/change TODOs and comments for all the functions when you implement them, This helps you to further refine and debug latter.\n3.We will test functions automatically, you only need to change the pinned data.\n\n"
+      },
+      {
+        "role": "system",
+        "content": "The user query:\n\n- 1. 所有的thought、comments都要用中文，让我看明白。\n\n- 2.1 Google Sheet的documentId(url)为：https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\n\n- 2.2 Google sheetName(url)为https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\n3.1 使用 ai node1 判断是否存在业务流，你可以使用aiCompletion node（注意调整 Prompt!)，如果 ai 的回答中包含 'to B'，则业务流类型是to B，如果包含 'to C'，则业务流类型是to C。\n4.1 Slack Channel 选择 #general.\n\n- 4.2 邮件内容使用 ai node2 生成。\n\n\nYou have access to use the following actions and triggers:\n\n1.integration=gmail: Consume the Gmail API\n  1.1: action(resource=message, operation=send)\n2.integration=googleSheets: Read, update and write data to Google Sheets\n  2.1: action(resource=sheet, operation=read): Read all rows in a sheet\n3.integration=manualTrigger: Runs the flow on clicking a button in n8n\n  3.1: trigger(resource=default, operation=default)\n4.integration=mongoDb: Find, insert and update documents in MongoDB\n  4.1: action(resource=default, operation=find): Find documents\n5.integration=n8nTrainingCustomerDatastore: Dummy node used for n8n training\n  5.1: action(resource=default, operation=getOnePerson)\n  5.2: action(resource=default, operation=getAllPeople)\n6.integration=n8nTrainingCustomerMessenger: Dummy node used for n8n training\n  6.1: action(resource=default, operation=default)\n7.integration=slack: Consume Slack API\n  7.1: action(resource=message, operation=post)\n8.integration=aiCompletion: Use GPT from openAi to complete language tasks.\n  8.1: action(resource=default, operation=default)\n"
+      },
+      {
+        "role": "assistant",
+        "function_call": {
+          "name": "function_rewrite_params",
+          "arguments": "{\n  \"function_name\": \"action_2\",\n  \"params\": \"{\\\"sendTo\\\": \\\"\\\", \\\"subject\\\": \\\"\\\", \\\"emailType\\\": \\\"text\\\", \\\"message\\\": \\\"\\\"}\",\n  \"comments\": \"向Gmail发送邮件，由于没有给出具体的收件人、主题和消息内容，我们暂时先不设置这些参数。\",\n  \"TODO\": [\"测试此功能\"],\n  \"thought\": \"由于Gmail的参数较多，我们需要仔细阅读参数描述，以确保正确设置。\",\n  \"plan\": [\"实现使用AI生成邮件内容的action。\"],\n  \"criticism\": \"当前计划看起来可行，没有明显的问题。\"\n}"
+        },
+        "content": ""
+      },
+      {
+        "role": "function",
+        "name": "function_rewrite_params",
+        "content": "{\"error\": \"input parameter is null, \\\"sendTo\\\" for action_2. You should put something in it.\", \"result\": \"Nothing happened.\", \"status\": \"RequiredParamUnprovided\"}"
+      },
+      {
+        "role": "assistant",
+        "function_call": {
+          "name": "workflow_implment",
+          "arguments": "{\n  \"workflow_name\": \"mainWorkflow\",\n  \"code\": \"def mainWorkflow(trigger_input: [{...}]):\\n  \\\"\\\"\\\"\\n  comments: 当用户手动触发时，从Google Sheets中读取业务流数据，计算业务流的利润，并判断业务流的类型，给业务经理发送盈利或亏损信息。\\n  TODOs: \\n    - 测试此工作流程\\n  \\\"\\\"\\\"\\n  # 从Google Sheets中读取业务流数据\\n  business_flow_data = action_0(trigger_input)\\n  # 计算业务流的利润\\n  for data in business_flow_data:\\n    data['json']['profit'] = data['json']['sales'] - data['json']['cost']\\n  # 判断业务流的类型，并给业务经理发送盈利或亏损信息\\n  for data in business_flow_data:\\n    if data['json']['type'] == 'to B':\\n      # 如果业务流类型为to B，向Slack的#general频道发送消息\\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\\n      action_1([message])\\n    elif data['json']['type'] == 'to C':\\n      # 如果业务流类型为to C，向该业务流经理发送一则提醒邮件\\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\\n      email_content = action_3([message])\\n      email = {'json': {'sendTo': data['json']['manager'], 'subject': '业务流利润提醒', 'message': email_content[0]['json']['choices'][0]['text']}}\\n      action_2([email])\\n  return business_flow_data\",\n  \"thought\": \"由于Gmail和AI的params没有给出具体的参数，我们需要先实现主工作流程，然后根据主工作流程的需要来设置Gmail和AI的params。\",\n  \"plan\": [\"实现Gmail和AI的params\", \"测试主工作流程\"],\n  \"criticism\": \"目前的计划看起来可行，没有明显的问题。\"\n}"
+        },
+        "content": ""
+      },
+      {
+        "role": "function",
+        "name": "workflow_implment",
+        "content": "{\"result\": \"mainWorkflow has been re-implemented\", \"status\": \"ToolCallSuccess\"}"
+      },
+      {
+        "role": "assistant",
+        "function_call": {
+          "name": "function_rewrite_params",
+          "arguments": "{\n  \"function_name\": \"action_3\",\n  \"params\": \"{\\\"messages\\\": \\\"=Hello, business manager, your business line \\\"+{{$json['Business Line']}}+\\\" has a profit of \\\"+({{$json['Sales']}}-{{$json['Cost']}})+\\\".\\\"}\",\n  \"comments\": \"使用AI生成邮件内容，内容为：Hello, business manager, your business line X has a profit of Y. 其中X是业务线的编号，Y是利润。\",\n  \"TODO\": [\"测试此功能\"],\n  \"thought\": \"根据AI的参数描述，我们需要设置'messages'参数，以生成邮件的内容。我使用了表达式来根据输入的数据生成消息。\",\n  \"plan\": [\"实现发送Gmail邮件的action。\"],\n  \"criticism\": \"当前计划看起来可行，没有明显的问题。\"\n}"
+        },
+        "content": ""
+      },
+      {
+        "role": "function",
+        "name": "function_rewrite_params",
+        "content": "{\"ERROR\": \"\\\"params\\\" field can't be parsed to json.\", \"result\": \"Nothing Happened\", \"status\": \"InputCannotParsed\"}"
+      },
+      {
+        "role": "user",
+        "content": "Now the codes looks like this:\n```\n\"\"\"Function param descriptions: \nThis function doesn't need params\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef trigger_0():\n  \"\"\"\n  comments: 当用户手动触发时，启动工作流程\n  TODOs: \n    - 实现触发器的参数设置\n  \"\"\"\n  params = {}\n  function = transparent_trigger(integration=\"manualTrigger\", resource=\"default\", operation=\"default\")\n  output_data = function.run(input_data=None, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"documentId\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}, Required: Document . \"mode\" should be one of ['url', 'id']: \n  0.0 params[\"documentId\"][\"value\"](when \"mode\"=\"url\"): string: By URL\n  0.1 params[\"documentId\"][\"value\"](when \"mode\"=\"id\"): string: By ID\n1 params[\"sheetName\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}, Required: Sheet . \"mode\" should be one of ['url', 'id']: \n  1.0 params[\"sheetName\"][\"value\"](when \"mode\"=\"url\"): string: By URL\n  1.1 params[\"sheetName\"][\"value\"](when \"mode\"=\"id\"): string: By ID\n2 params[\"filtersUI\"]: dict[str,list[dict[str,any]]] = {}: Filters(Add Filter) . properties description:\n  ...hidden...\n3 params[\"options\"]: dict = {}: Options(Add Option) . properties description:\n  ...hidden...\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_0(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 从Google Sheets中读取业务流数据，其中documentId和sheetName都是通过URL给出的。\n  TODOs: \n    - 测试此功能\n  \"\"\"\n  params = {\n             \"documentId\": {\n               \"mode\": \"url\",\n               \"value\": \"https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\"\n             },\n             \"sheetName\": {\n               \"mode\": \"url\",\n               \"value\": \"https://docs.google.com/spreadsheets/d/1_B038J1f3VW94z179OagFwEtnr3k5mTyXKBTPI2Fw-U/edit#gid=1759497495\"\n             }\n           }\n  function = transparent_action(integration=\"googleSheets\", resource=\"sheet\", operation=\"read\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"select\"]: enum[string] = \"\", Required: Send Message To(Select...) . Available values:\n  0.0 value==\"channel\": Channel\n  0.1 value==\"user\": User\n1 params[\"channelId\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}, Required: Channel. The Slack channel to send to(Select a channel...) . \"mode\" should be one of ['id', 'name', 'url']: \n  1.0 params[\"channelId\"][\"value\"](when \"mode\"=\"id\"): string: By ID(C0122KQ70S7E)\n  1.1 params[\"channelId\"][\"value\"](when \"mode\"=\"name\"): string: By Name(#general)\n  1.2 params[\"channelId\"][\"value\"](when \"mode\"=\"url\"): string: By URL(https://app.slack.com/client/TS9594PZK/B0556F47Z3A)\n2 params[\"user\"]: dict{\"mode\":enum(str),\"values\":any} = {'mode': 'list', 'value': ''}: User(Select a user...) . \"mode\" should be one of ['id', 'username']: \n  ...hidden...\n3 params[\"messageType\"]: enum[string] = \"text\": Message Type. Whether to send a simple text message, or use Slack’s Blocks UI builder for more sophisticated messages that include form fields, sections and more . Available values:\n  3.0 value==\"text\": Simple Text Message. Supports basic Markdown\n  3.1 value==\"block\": Blocks. Combine text, buttons, form elements, dividers and more in Slack 's visual builder\n  3.2 value==\"attachment\": Attachments\n4 params[\"text\"]: string = \"\": Notification Text. Fallback text to display in slack notifications. Supports <a href=\"https://api.slack.com/reference/surfaces/formatting\">markdown</a> by default - this can be disabled in \"Options\".\n5 params[\"blocksUi\"]: string = \"\", Required: Blocks. Enter the JSON output from Slack's visual Block Kit Builder here. You can then use expressions to add variable content to your blocks. To create blocks, use <a target='_blank' href='https://app.slack.com/block-kit-builder'>Slack's Block Kit Builder</a>\n6 params[\"attachments\"]: list[dict] = [{}]: Attachments(Add attachment item) . properties description:\n  ...hidden...\n7 params[\"otherOptions\"]: dict = {}: Options. Other options to set(Add options) . properties description:\n  ...hidden...\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_1(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 向Slack的#general频道发送消息\n  TODOs: \n    - 测试此功能\n  \"\"\"\n  params = {\n             \"select\": \"channel\",\n             \"channelId\": {\n               \"mode\": \"name\",\n               \"value\": \"#general\"\n             }\n           }\n  function = transparent_action(integration=\"slack\", resource=\"message\", operation=\"post\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"sendTo\"]: string = \"\", Required: To. The email addresses of the recipients. Multiple addresses can be separated by a comma. e.g. jay@getsby.com, jon@smith.com.(info@example.com)\n1 params[\"subject\"]: string = \"\", Required: Subject(Hello World!)\n2 params[\"emailType\"]: enum[string] = \"text\", Required: Email Type  You can't use expression.. Available values:\n  2.0 value==\"text\": Text\n  2.1 value==\"html\": HTML\n3 params[\"message\"]: string = \"\", Required: Message\n4 params[\"options\"]: dict = {}: Options(Add Option) . properties description:\n  ...hidden...\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_2(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 向Gmail发送邮件\n  TODOs: \n    - 实现动作的参数设置\n  \"\"\"\n  params = {}  # to be Implemented\n  function = transparent_action(integration=\"gmail\", resource=\"message\", operation=\"send\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"Function param descriptions: \n0 params[\"messages\"]: string = \"\", Required: messages. Set system and user prompts here. An Example:{\"messages\": [{\"role\": \"system\",\"content\": \"Please say hello to user.\"}, {\"role\": \"user\",\"content\": \"Hello!\"}]}\n\nThis function has been executed for 0 times. Last execution:\n1.Status: DidNotBeenCalled\n2.Input: \n[]\n\n3.Output:\n[]\n\"\"\"\ndef action_3(input_data: List[Dict] =  [{...}]):\n  \"\"\"\n  comments: 使用AI生成邮件内容\n  TODOs: \n    - 实现动作的参数设置\n  \"\"\"\n  params = {}  # to be Implemented\n  function = transparent_action(integration=\"aiCompletion\", resource=\"default\", operation=\"default\")\n  output_data = function.run(input_data=input_data, params=params)\n  return output_data\n\n\n\n\"\"\"\n\nThis function has been executed for 1 times. Last execution:\n1.Status: ErrorRaisedHere\n2.Input: \nNone\n\n3.Output:\n[]\n\"\"\"\ndef mainWorkflow(trigger_input: [{...}]):\n  \"\"\"\n  comments: 当用户手动触发时，从Google Sheets中读取业务流数据，计算业务流的利润，并判断业务流的类型，给业务经理发送盈利或亏损信息。\n  TODOs: \n    - 测试此工作流程\n  \"\"\"\n  # 从Google Sheets中读取业务流数据\n  business_flow_data = action_0(trigger_input)\n  # 计算业务流的利润\n  for data in business_flow_data:\n    data['json']['profit'] = data['json']['sales'] - data['json']['cost']\n  # 判断业务流的类型，并给业务经理发送盈利或亏损信息\n  for data in business_flow_data:\n    if data['json']['type'] == 'to B':\n      # 如果业务流类型为to B，向Slack的#general频道发送消息\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\n      action_1([message])\n    elif data['json']['type'] == 'to C':\n      # 如果业务流类型为to C，向该业务流经理发送一则提醒邮件\n      message = {'json': {'text': '业务流' + data['json']['name'] + '的利润为' + str(data['json']['profit'])}}\n      email_content = action_3([message])\n      email = {'json': {'sendTo': data['json']['manager'], 'subject': '业务流利润提醒', 'message': email_content[0]['json']['choices'][0]['text']}}\n      action_2([email])\n  return business_flow_data\n\n\n\n\"\"\"\n\nThe directly running result for now codes with print results are as following:\n\n\nNote: if there is 'KeyError' in the error message, it may be due to the wrong usage of output data. The output data info may help you: \n[Output Data Info]\n\n------------------------\nIn Function: mainWorkflow\n      print(\"Please call Workflow-implement first\")\n-->   raise NotImplementedError\n------------------------\nNotImplementedError: \n\nYou can also see the runnning result for all functions in there comments.\n\"\"\"\n```\n\n\n\nGive your next action together with thought, plans and criticisim:\n"
+      }
+    ],
+    "functions": [
+      {
+        "name": "function_define",
+        "description": "define a list of functions, each one must specify the given (integration-resource-action)",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "thought": {
+              "type": "string",
+              "description": "Why you choose this function"
+            },
+            "plan": {
+              "type": "array",
+              "description": "What will you do in the following steps",
+              "items": {
+                "type": "string"
+              }
+            },
+            "criticism": {
+              "type": "string",
+              "description": "What main weakness does the current plan have"
+            },
+            "functions": {
+              "type": "array",
+              "description": "the newly defined functions.",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "integration_name": {
+                    "type": "string"
+                  },
+                  "resource_name": {
+                    "type": "string"
+                  },
+                  "operation_name": {
+                    "type": "string"
+                  },
+                  "comments": {
+                    "type": "string",
+                    "description": "This will be shown to the user, how will you use this node in the workflow"
+                  },
+                  "TODO": {
+                    "type": "array",
+                    "description": "The function didn't have implemented yet. List what you will do to further implement, test and refine this function",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "required": [
+                  "integration_name",
+                  "resource_name",
+                  "operation_name",
+                  "comments",
+                  "TODO"
+                ]
+              }
+            }
+          },
+          "required": [
+            "thought",
+            "plan",
+            "criticism",
+            "functions"
+          ]
+        }
+      },
+      {
+        "name": "function_rewrite_params",
+        "description": "Give params of a already defined function with the provided param descriptions, This will overwrite now params",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "thought": {
+              "type": "string",
+              "description": "Why you choose this function"
+            },
+            "plan": {
+              "type": "array",
+              "description": "What will you do in the following steps",
+              "items": {
+                "type": "string"
+              }
+            },
+            "criticism": {
+              "type": "string",
+              "description": "What main weakness does the current plan have"
+            },
+            "function_name": {
+              "type": "string",
+              "description": "Such as 'Action_x' or 'Trigger_x'. Must be a already defined function."
+            },
+            "params": {
+              "type": "string",
+              "description": "The json object of the input params. The field descriptions should refer to the Function defination in the code"
+            },
+            "comments": {
+              "type": "string",
+              "description": "This will be shown to the user, how will you use this node in the workflow"
+            },
+            "TODO": {
+              "type": "array",
+              "description": "What will you do to further implement, test and refine this function",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "thought",
+            "plan",
+            "criticism",
+            "function_name",
+            "params",
+            "comments",
+            "TODO"
+          ]
+        }
+      },
+      {
+        "name": "workflow_implment",
+        "description": "Implement a workflow, directly write the output of the workflow, staring with \"def mainWorkflow...\" or \"def subworkflow_xxx...\"",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "thought": {
+              "type": "string",
+              "description": "Why you choose this function"
+            },
+            "plan": {
+              "type": "array",
+              "description": "What will you do in the following steps",
+              "items": {
+                "type": "string"
+              }
+            },
+            "criticism": {
+              "type": "string",
+              "description": "What main weakness does the current plan have"
+            },
+            "workflow_name": {
+              "type": "string",
+              "description": "the newly implemented workflow. If this workflow exists, we will overwrite it. All names must be \"mainWorkflow\" or \"subworkflow_x\""
+            },
+            "code": {
+              "type": "string",
+              "description": "Write the python code of the workflow. We will check you have \"comments\" and \"TODOs\". Input of mainWorkflow should always be trigger_input, Input of subworkflows should always be father_workflow_input"
+            }
+          },
+          "required": [
+            "thought",
+            "plan",
+            "criticism",
+            "workflow_name",
+            "code"
+          ]
+        }
+      },
+      {
+        "name": "ask_user_help",
+        "description": "Call this function when you think you can't solve some problems. You can ask user for help.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "problems": {
+              "type": "string",
+              "description": "Tell what problem you are confronted with to user and ask for help."
+            }
+          }
+        }
+      },
+      {
+        "name": "task_submit",
+        "description": "Call this function when you think you have finished the task. User will give you some feedback that can help you make your workflow better.",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "type": "string",
+              "description": "Tell what you have done to user. Use Markdown format."
+            }
+          }
+        }
+      }
+    ],
+    "function_call": null,
+    "stop": null,
+    "other_args": {}
+  },
+  "output": "Exception: Request timed out: HTTPSConnectionPool(host='sailaoda.cn', port=443): Read timed out. (read timeout=30)",
+  "llm_interface_id": 14
+}

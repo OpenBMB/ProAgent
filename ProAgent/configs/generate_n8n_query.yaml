@@ -1,0 +1,48 @@
+
+
+
+run:
+  max_chain_length: 100
+  slide_window_size: 5
+
+  max_node_count: 10
+  max_workflow_count: 10
+
+
+parser:
+  nodes_json_path: "ProAgent/n8n_parser/nodes.json"
+  nodes_whtie_list: [
+    "n8nTrainingCustomerMessenger",
+    "n8nTrainingCustomerDatastore",
+    "manualTrigger",
+    "slack.message.post",
+    # "slack.file.upload",
+    # "webhook",
+    # "redis.default.set",
+    # "googleSheets.sheet.append",
+    "googleSheets.sheet.read",
+    "mongoDb.default.find",
+    "gmail.message.send",
+    # "googleSheetsTrigger.default.default"
+    # "spreadsheetFile.default.toFile"
+    # "githubTrigger",
+    # "github",
+    # "slack"
+    "aiCompletion.default.default"
+  ]
+
+
+# defaults:
+#   - override hydra/job_logging: disabled
+
+
+hydra:
+  output_subdir: null
+  run:
+    dir: .
+  job_logging:
+    root:
+      handlers: []
+    handlers: {}
+    formatters: {}
+    loggers: {}

@@ -1,0 +1,79 @@
+{
+    "displayName": "Ai Completion",
+    "name": "n8n-nodes-base.aiCompletion",
+    "group": [
+        "transform"
+    ],
+    "version": 1,
+    "description": "Use GPT from openAi to complete language tasks.",
+    "defaults": {
+        "name": "Ai Completion"
+    },
+    "inputs": [
+        "main"
+    ],
+    "outputs": [
+        "main"
+    ],
+    "credentials": [
+        {
+            "name": "actionNetworkApi",
+            "required": false
+        }
+    ],
+    "properties": [
+        {
+            "displayName": "Resource",
+            "name": "resource",
+            "type": "options",
+            "noDataExpression": true,
+            "options": [
+                {
+                    "name": "default",
+                    "value": "default"
+                }
+            ],
+            "default": "default"
+        },
+        {
+            "displayName": "Operation",
+            "name": "operation",
+            "type": "options",
+            "noDataExpression": true,
+            "displayOptions": {
+                "show": {
+                    "resource": [
+                        "default"
+                    ]
+                }
+            },
+            "options": [
+                {
+                    "name": "default",
+                    "value": "default",
+                    "action": "chat with AI"
+                }
+            ],
+            "default": "default"
+        },
+        {
+            "displayName": "messages",
+            "name": "messages",
+            "description": "Set system and user prompts here. An Example:{\"messages\": [{\"role\": \"system\",\"content\": \"Please say hello to user.\"}, {\"role\": \"user\",\"content\": \"Hello!\"}]}",
+            "type": "list",
+            "default": "",
+            "required": true,
+            "displayOptions": {
+                "show": {
+                    "resource": [
+                        "default"
+                    ],
+                    "operation": [
+                        "default"
+                    ]
+                }
+            }
+        }
+    ],
+    "pseudoNode": true
+}

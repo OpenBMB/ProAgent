@@ -1,0 +1,18 @@
+{
+  "thought": "",
+  "plan": [],
+  "criticism": "",
+  "tool_name": "change_function_pinned_data",
+  "tool_input": {
+    "function_name": "action_0",
+    "pinned_data_ID": [
+      1
+    ]
+  },
+  "tool_output_status": "NoSuchTool",
+  "tool_output": {
+    "error": "No such action change_function_pinned_data",
+    "result": "Nothing Happened",
+    "status": "NoSuchTool"
+  }
+}

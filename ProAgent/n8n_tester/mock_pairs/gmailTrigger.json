@@ -1,0 +1,38 @@
+{
+    "default": {
+        "default": [
+            {
+                "id": "18ac5d489adbb451",
+                "threadId": "18ac5d489adbb451",
+                "snippet": "这是测试mock邮件的内容",
+                "payload": {
+                    "mimeType": "multipart/alternative"
+                },
+                "sizeEstimate": 10427,
+                "historyId": "223226",
+                "internalDate": "1695537202000",
+                "labels": [
+                    {
+                        "id": "INBOX",
+                        "name": "INBOX"
+                    },
+                    {
+                        "id": "IMPORTANT",
+                        "name": "IMPORTANT"
+                    },
+                    {
+                        "id": "CATEGORY_UPDATES",
+                        "name": "CATEGORY_UPDATES"
+                    },
+                    {
+                        "id": "UNREAD",
+                        "name": "UNREAD"
+                    }
+                ],
+                "From": "n8n.io <hello@info.n8n.io>",
+                "Subject": "Verify your n8n account email",
+                "To": "yourxagent@gmail.com"
+            }
+        ]
+    }
+}

@@ -1,0 +1,70 @@
+{
+  "thought": "根据用户需求，需要定义一个触发器，以及读取Google Sheets数据、发送Slack消息和邮件的动作，以及使用AI生成邮件内容的动作。",
+  "plan": [
+    "定义所需的触发器和动作",
+    "实现触发器和动作的参数设置",
+    "实现工作流程"
+  ],
+  "criticism": "暂无",
+  "tool_name": "function_define",
+  "tool_input": {
+    "functions": [
+      {
+        "TODO": [
+          "实现触发器的参数设置"
+        ],
+        "comments": "当用户手动触发时，启动工作流程",
+        "integration_name": "manualTrigger",
+        "resource_name": "default",
+        "operation_name": "default"
+      },
+      {
+        "TODO": [
+          "实现动作的参数设置"
+        ],
+        "comments": "从Google Sheets中读取业务流数据",
+        "integration_name": "googleSheets",
+        "resource_name": "sheet",
+        "operation_name": "read"
+      },
+      {
+        "TODO": [
+          "实现动作的参数设置"
+        ],
+        "comments": "向Slack发送消息",
+        "integration_name": "slack",
+        "resource_name": "message",
+        "operation_name": "post"
+      },
+      {
+        "TODO": [
+          "实现动作的参数设置"
+        ],
+        "comments": "向Gmail发送邮件",
+        "integration_name": "gmail",
+        "resource_name": "message",
+        "operation_name": "send"
+      },
+      {
+        "TODO": [
+          "实现动作的参数设置"
+        ],
+        "comments": "使用AI生成邮件内容",
+        "integration_name": "aiCompletion",
+        "resource_name": "default",
+        "operation_name": "default"
+      }
+    ]
+  },
+  "tool_output_status": "ToolCallSuccess",
+  "tool_output": {
+    "result": [
+      "function_0 defined SUCCESS: manualTrigger->default->default",
+      "function_1 defined SUCCESS: googleSheets->sheet->read",
+      "function_2 defined SUCCESS: slack->message->post",
+      "function_3 defined SUCCESS: gmail->message->send",
+      "function_4 defined SUCCESS: aiCompletion->default->default"
+    ],
+    "status": "ToolCallSuccess"
+  }
+}
