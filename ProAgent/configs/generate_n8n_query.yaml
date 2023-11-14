@@ -16,18 +16,9 @@ parser:
     "n8nTrainingCustomerDatastore",
     "manualTrigger",
     "slack.message.post",
-    # "slack.file.upload",
-    # "webhook",
-    # "redis.default.set",
-    # "googleSheets.sheet.append",
     "googleSheets.sheet.read",
     "mongoDb.default.find",
     "gmail.message.send",
-    # "googleSheetsTrigger.default.default"
-    # "spreadsheetFile.default.toFile"
-    # "githubTrigger",
-    # "github",
-    # "slack"
     "aiCompletion.default.default"
   ]
 

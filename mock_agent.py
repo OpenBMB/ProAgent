@@ -1,4 +1,3 @@
-
 import json
 
 
@@ -9,27 +8,27 @@ mock_function_call_list = [
         "integration_name": "webhook",
         "resource_name": "default",
         "operation_name": "default",
-        "comments": "这是workflow的入口，用户点击按钮时候会执行workflow",
+        "comments": "This is the entry point of the workflow, the workflow will be executed when the user clicks the button",
         "TODO": [
-          "根据ui的描述，这个触发器可能没有参数需要填写"
+          "According to the UI description, this trigger may not need any parameters to fill in"
         ]
       },
       {
         "integration_name": "n8nTrainingCustomerDatastore",
         "resource_name": "default",
         "operation_name": "getOnePerson",
-        "comments": "用这个action模拟获取模型版本信息的操作",
+        "comments": "Use this action to simulate the operation of obtaining model version information",
         "TODO": [
-          "实现这个action后，需要查看模型版本信息的数据格式，为实现workflow作准备"
+          "After implementing this action, you need to check the data format of the model version information to prepare for the implementation of the workflow"
         ]
       },
       {
         "integration_name": "slack",
         "resource_name": "message",
         "operation_name": "post",
-        "comments": "用这个action向slack的#general频道发送模型版本信息和自我介绍",
+        "comments": "Use this action to send model version information and self-introduction to the #general channel of slack",
         "TODO": [
-          "实现这个action后，需要查看发送信息需要的数据格式，为实现workflow作准备"
+          "After implementing this action, you need to check the data format required for sending information to prepare for the implementation of the workflow"
         ]
       }
     ]
@@ -44,12 +43,12 @@ mock_function_call_list = [
                "value": "#general"
              },
              "messageType": "text",
-             "text": "大家好，我是ChatGPT"
+             "text": "Hello everyone, I'm ChatGPT"
            }
         ),
-        "comments": "这是workflow的触发点，当用户点击一个按钮时会执行workflow",
+        "comments": "This is the trigger point of the workflow, the workflow will be executed when the user clicks a button",
         "TODO": [
-        "执行这个触发器，然后检查输出，看看是否符合我们的预期"
+        "Execute this trigger and then check the output to see if it meets our expectations"
         ]
   }),
     ("function_rewrite_params",{
@@ -62,9 +61,9 @@ mock_function_call_list = [
              "responseData": "allEntries"
            }
         ),
-        "comments": "这是workflow的触发点，当用户发送 get 请求时会执行workflow",
+        "comments": "This is the trigger point of the workflow, the workflow will be executed when the user sends a get request",
         "TODO": [
-        "执行这个触发器，然后检查输出，看看是否符合我们的预期"
+        "Execute this trigger and then check the output to see if it meets our expectations"
         ]
   }),
     ("workflow_implment",{
