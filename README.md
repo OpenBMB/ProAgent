@@ -24,7 +24,7 @@ Our projects use a self-host n8n, you can either prepare a n8n environment and c
 
 Or you can load our record to re-produce the case reported in our paper **without** n8n environment
 
-> prepare a n8n service is not a eazy thing, you may face some problems or bug that we haven't encountered before, and you must handle the situation. For example, you may find some GFW problems in China when connecting your APP accounts with n8n
+> prepare a n8n service is not an eazy thing, you may face some problems or bug that we haven't encountered before, and you must handle the situation. For example, you may find some GFW problems in China when connecting your APP accounts with n8n
 
 #### install n8n
 
@@ -47,7 +47,7 @@ n8n
 
 <img src="./images/credentials.png">
 
-You need to regist or connect a existing APP with n8n before launching `ProAgent`. Connecting an APP may have some APP-specific operations, you can follow the n8n credential guide [here](https://docs.n8n.io/integrations/builtin/credentials/)
+You need to regist or connect an existing APP with n8n before launching `ProAgent`. Connecting an APP may have some APP-specific operations, you can follow the n8n credential guide [here](https://docs.n8n.io/integrations/builtin/credentials/)
 
 #### Save credentials
 
@@ -72,8 +72,8 @@ move `w.json` to `./ProAgent/n8n_tester/credentials/w.json`
 The running depends on a `config`， which is in `ProAgent/config.py`, you can set the running environment:
 
 - development: This is the mode reported in paper, .
-- refine: load from a existing workflow, and then refine the workflow with some new request
-- production: load from a existing workflow, you can use this mode to re-produce a existing run of `ProAgent`
+- refine: load from an existing workflow, and then refine the workflow with some new request
+- production: load from an existing workflow, you can use this mode to re-produce an existing run of `ProAgent`
 
 we have provide the case reported in our paper in `./apa_case`, you can use `production` mode to load the run directly
 
