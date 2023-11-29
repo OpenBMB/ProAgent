@@ -13,7 +13,7 @@ def search_node_name(file_path="./nodes.json", search_name="Spreadsheet File"):
         dict or None: A dictionary containing the name, resource, and operation of the node if found, 
         or None if the node is not found.
     """
-    with open(os.path.join(file_path), "r") as fr:
+    with open(os.path.join(file_path), "r", encoding="utf-8") as fr:
         nodes_json = json.load(fr)
         for item in nodes_json:
             if search_name.lower() == str(item["displayName"]).lower():

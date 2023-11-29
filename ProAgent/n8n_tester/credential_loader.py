@@ -15,7 +15,7 @@ class Credentials():
         Return:
             None
         """
-        with open(os.path.join(base_file_path,"c.json"),"r") as reader:
+        with open(os.path.join(base_file_path,"c.json"),"r", encoding="utf-8") as reader:
             credential_data = json.load(reader)
             self.credential_data: Dict[str,Any] = {}
             for item in credential_data:
@@ -29,7 +29,7 @@ class Credentials():
                     if self.credential_data.get(node_type_name,-1) == -1:
                         self.credential_data[node_type_name] = []
                     self.credential_data[node_type_name].append(item_info)
-        with open(os.path.join(base_file_path,"w.json"),"r") as reader:
+        with open(os.path.join(base_file_path,"w.json"),"r", encoding="utf-8") as reader:
             workflow_data = json.load(reader)
             self.workflow_id = workflow_data[0]["id"]
                 

@@ -80,7 +80,7 @@ class RunningRecoder():
         Returns:
             None
         """
-        with open(os.path.join(self.record_root_dir, "meta.meta"), "w") as writer:
+        with open(os.path.join(self.record_root_dir, "meta.meta"), "w", encoding="utf-8") as writer:
             tool_call_log = {
                 "tool_call_id": self.tool_call_id,
                 "llm_inference_id": self.llm_interface_id,
@@ -109,11 +109,11 @@ class RunningRecoder():
                 inout_pair_list = os.listdir(os.path.join(record_dir,dir_name))
                 inout_pair_list.sort()
                 for file_name in inout_pair_list:
-                    with open(os.path.join(record_dir,dir_name,file_name), "r") as reader:
+                    with open(os.path.join(record_dir,dir_name,file_name), "r", encoding="utf-8") as reader:
                         llm_pair = json.load(reader)
                         self.llm_record_cache.append(llm_pair)
             elif dir_name == "meta.meta":
-                with open(os.path.join(record_dir, "meta.meta"), "r") as reader:
+                with open(os.path.join(record_dir, "meta.meta"), "r", encoding="utf-8") as reader:
                     tool_call_log = json.load(reader)
         
     
@@ -137,7 +137,7 @@ class RunningRecoder():
         Raises:
             None
         """
-        with open(os.path.join(self.record_root_dir, "LLM_inout_pair", f"{self.llm_interface_id:05d}.json"), "w") as writer:
+        with open(os.path.join(self.record_root_dir, "LLM_inout_pair", f"{self.llm_interface_id:05d}.json"), "w", encoding="utf-8") as writer:
             llm_inout_record = {
                 "input": {
                     "base_kwargs": dump_common_things(base_kwargs),
@@ -231,10 +231,10 @@ class RunningRecoder():
         Returns:
             None
         """
-        with open(os.path.join(self.record_root_dir, "tool_call_logs", f"{self.tool_call_id:05d}_tool.json"), "w") as writer:
+        with open(os.path.join(self.record_root_dir, "tool_call_logs", f"{self.tool_call_id:05d}_tool.json"), "w", encoding="utf-8") as writer:
             tool_call_log = action.to_json()
             json.dump(tool_call_log,writer,indent=2, ensure_ascii=False)
-        with open(os.path.join(self.record_root_dir, "tool_call_logs", f"{self.tool_call_id:05d}_code.py"), "w") as writer:
+        with open(os.path.join(self.record_root_dir, "tool_call_logs", f"{self.tool_call_id:05d}_code.py"), "w", encoding="utf-8") as writer:
             writer.write(now_code)
 
         self.tool_call_id += 1
@@ -251,7 +251,7 @@ class RunningRecoder():
         Returns:
             None
         """
-        with open(os.path.join(self.record_root_dir, f"README.md"), "w") as writer:
+        with open(os.path.join(self.record_root_dir, f"README.md"), "w", encoding="utf-8") as writer:
             writer.write(markdown)
     
     def is_final_cache(self):

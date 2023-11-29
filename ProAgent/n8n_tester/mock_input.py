@@ -25,7 +25,7 @@ class MockInput():
         for file_name in tqdm(os.listdir(self.mock_pair_dir),desc="loading all MockInput from Disk"):
             assert file_name.endswith(".json")
             integration_name = file_name.split(".")[0]
-            with open(os.path.join(self.mock_pair_dir, file_name), "r") as reader:
+            with open(os.path.join(self.mock_pair_dir, file_name), "r", encoding="utf-8") as reader:
                 json_data_for_integration = json.load(reader)
                 if self.mock_data.get(integration_name, -1) == -1:
                     self.mock_data[integration_name] = {}
@@ -59,7 +59,7 @@ class MockInput():
         print("persisting mock input dictionary")
         for integration, val in self.mock_data.items():
             try:
-                with open(os.path.join(self.mock_pair_dir, integration + '.json'), "w") as writer:
+                with open(os.path.join(self.mock_pair_dir, integration + '.json'), "w", encoding="utf-8") as writer:
                     json.dump(val, writer, indent=4)
             except Exception as e:
                 print(e)
