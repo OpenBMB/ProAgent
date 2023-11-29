@@ -1,4 +1,4 @@
-# ProAgent: from Robotic Process Automation to Agentic Process Automation
+# ProAgent: From Robotic Process Automation to Agentic Process Automation
 
 <img src="./images/intro.png">
 
@@ -6,7 +6,7 @@ From water wheels to Robotic Process Automation (RPA), automation technology has
 
 ## <img src="./images/table.png">
 
-And this is the official code of `Agentic Process Automation` paper, you can temporally download our paper [here](https://github.com/OpenBMB/ProAgent/blob/main/paper/paper.pdf)
+And this is the official code of `Agentic Process Automation` paper, you can download our paper [here](https://arxiv.org/abs/2311.10751).
 
 ## Code Setup
 
@@ -108,3 +108,15 @@ The method in our code is almost the same as descripted in our paper. However so
 
 
 
+## Citation
+
+If you find this repo helpful, feel free to cite us.
+
+```
+@article{ye2023proagent,
+  title={ProAgent: From Robotic Process Automation to Agentic Process Automation},
+  author={Ye, Yining and Cong, Xin and Tian, Shizuo and Cao, Jiannan and Wang, Hao and Qin, Yujia and Lu, Yaxi and Yu, Heyang and Wang, Huadong and Lin, Yankai and others},
+  journal={arXiv preprint arXiv:2311.10751},
+  year={2023}
+}
+```

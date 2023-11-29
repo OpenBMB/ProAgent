@@ -1,12 +1,12 @@
-# ProAgent：从机器流程自动化到智能体流程自动化
+# ProAgent：从机器人流程自动化到智能体流程自动化
 
 ![intro](./images/intro.png)
 
-从水车到机器流程自动化(RPA)，自动化技术在历史长河中不断发展，从繁重的任务中解放人类。然而，对于需要人类智能的任务，特别是在复杂的工作流构建和动态决策制定中，RPA却面临困境。随着大型语言模型(LLMs)的出现，人类智能已经出现，本文介绍了 `智能体流程自动化`(APA)，这是一种使用基于LLM的智能体进行高级自动化的突破性自动化范例，通过将人力劳动解放于与建设和执行相关的智能体上。我们实现了 `ProAgent`，这是一种基于LLM的智能体，它被设计来根据人类的指示制定工作流，并通过协调专门的智能体来进行复杂的决策。我们进行了实证实验，详细描述了其工作流的构建和执行过程，展示了APA的可行性，揭示了由智能体驱动的自动化新范例的可能性。
+从水车到机器人流程自动化(RPA)，自动化技术在历史长河中不断发展，从繁重的任务中解放人类。然而，对于需要人类智能的任务，特别是在复杂的工作流构建和动态决策制定中，RPA却面临困境。随着大型语言模型(LLMs)的出现，人类智能已经出现，本文介绍了 `智能体流程自动化`(APA)，这是一种使用基于LLM的智能体进行高级自动化的突破性自动化范例，通过将人力劳动解放于与建设和执行相关的智能体上。我们实现了 `ProAgent`，这是一种基于LLM的智能体，它被设计来根据人类的指示制定工作流，并通过协调专门的智能体来进行复杂的决策。我们进行了实证实验，详细描述了其工作流的构建和执行过程，展示了APA的可行性，揭示了由智能体驱动的自动化新范例的可能性。
 
 ## `<img src="./images/table.png">`
 
-这是 `智能体流程自动化`论文的官方代码，你可以暂时在[这里](https://github.com/OpenBMB/ProAgent/blob/main/paper/paper.pdf)下载我们的论文。
+这是 `智能体流程自动化`论文的官方代码，你可以在[这里](https://arxiv.org/abs/2311.10751)下载我们的论文。
 
 ## 代码设置
 
@@ -96,3 +96,16 @@ OPENAI_API_KEY, OPENAI_API_BASE
 - HCI：我们观察到当 `ProAgent`对问题有一些误解时，会出现一些问题，所以我们开发了一个功能，通过一个新的函数调用（如XAgent）来让ProAgent向人类求助。这种主动的方式鼓励 `ProAgent`与人类一起构建和测试工作流。
 - n8n特性：n8n在我们的工作并行中迅速发布了一些新的特性。我们的代码基本上是基于n8n的一个旧版本，并且我们在我们的代码库中写了一个 `n8n-compiler`。所以那个编译器可能与n8n的新版本不兼容。
 - OpenAI：`ProAgent`基于 `GPT4-0613`。然而，OpenAI在开发日发布了 `GPT4-1106-preview`，在函数调用中有38%的提升。所以你可能会发现 `ProAgent`比我们的论文更好，这要归功于OpenAI的更新~
+
+## 引用
+
+如果您在您的工作中使用了我们的代码，请使用以下形式进行引用
+
+```
+@article{ye2023proagent,
+  title={ProAgent: From Robotic Process Automation to Agentic Process Automation},
+  author={Ye, Yining and Cong, Xin and Tian, Shizuo and Cao, Jiannan and Wang, Hao and Qin, Yujia and Lu, Yaxi and Yu, Heyang and Wang, Huadong and Lin, Yankai and others},
+  journal={arXiv preprint arXiv:2311.10751},
+  year={2023}
+}
+```
